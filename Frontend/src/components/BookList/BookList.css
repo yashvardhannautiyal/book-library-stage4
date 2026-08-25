@@ -1,0 +1,15 @@
+#book-list-container{
+    width:70%;
+}
+
+#book-list-container h2{
+    margin-bottom:20px;
+}
+
+.empty{
+    color:rgba(27, 54, 27, 0.819);
+    text-align:center;
+    padding:25px;
+    border:1px solid rgba(70, 136, 70, 0.819);
+    border-radius:10px;
+}

@@ -1,0 +1,28 @@
+#main-container{
+    display: flex;
+    flex-direction : column;
+    align-items: center;
+}
+
+#heading-container p{
+  font-size: 20px;
+  color: rgb(23, 67, 23);
+}
+
+#search-filter{
+    display: flex;
+    gap: 30px;
+    width: 50%;
+}
+
+#search-filter input{
+    width: 60%;
+    border: 1px solid rgba(70, 136, 70, 0.819);
+    font-size: 15px;
+}
+
+#search-filter select{
+    width: 40%;
+    border: 1px solid rgba(70, 136, 70, 0.819);
+    font-size: 15px;
+}

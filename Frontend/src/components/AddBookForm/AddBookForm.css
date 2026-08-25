@@ -1,0 +1,90 @@
+#form-component {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+/* heading */
+#heading-container {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+#heading {
+  font-size: 50px;
+  margin-bottom: 10px;
+  color: rgb(23, 67, 23);
+}
+
+#heading-text {
+  font-size: 1rem;
+  color: rgb(8, 126, 8);
+}
+
+/* form container */
+#form-container {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  font-size: 13px;
+  border: 1px solid rgba(70, 136, 70, 0.819); 
+}
+
+#form-container h4 {
+  margin-bottom: 20px;
+  letter-spacing: 1px;
+  font-size: 15px;
+  color: rgb(18, 97, 18);
+}
+
+/* Form */
+form div {
+  margin-bottom: 15px;
+}
+
+#author, #title{
+  font-size: 15px;
+  border: 1px solid rgba(70, 136, 70, 0.819);
+}
+label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: rgba(70, 136, 70, 0.819);  
+  font-size: 15px;
+}
+
+form input,
+select {
+  width: 90%;
+  padding: 10px;
+  border: 1px solid rgba(70, 136, 70, 0.819);
+  border-radius: 6px;
+  font-size: 13px;
+  transition: border-color 0.3s ease;
+}
+
+input:focus,
+select:focus {
+  border-color: rgba(70, 136, 70, 0.819);
+  outline: none;
+}
+
+/* Button */
+button[type="submit"] {
+  background: rgba(70, 136, 70, 0.819);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+button[type="submit"]:hover {
+  background: rgba(91, 141, 91, 0.819);
+  cursor: pointer;
+}
