@@ -6,6 +6,7 @@ import SearchFilter from "./components/SearchFilter/SearchFilter.jsx";
 import BookHelper from "./utils/BookHelper.js";
 import ShelfManagement from "./components/ShelfManagement/ShelfManagement.jsx";
 import UndoToast from "./components/UndoToast/UndoToast.jsx";
+import BookDiscover from "./components/Discover/BookDiscover.jsx";
 
 //------------------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------
@@ -73,6 +74,8 @@ const migrateBooks = (books, shelves) => {
 };
 
 function App() {
+  const [activeView, setActiveView] = useState("library");
+
   // BOOK UNDO-DELETE + SHOW UNDO STATE
   const [deletedBook, setDeletedBook] = useState(null);
   const [showUndoToast, setShowUndoToast] = useState(false);
@@ -451,53 +454,72 @@ function App() {
   //app return
   return (
     <div>
-      {/* form */}
-      <AddBookForm onAddBook={handleAddBook} shelves={shelves} />
-      {/* pass shelves as prop so that AddBookForm can access the shelves */}
+      {/* view switch buttons  */}
+      <div>
+        <button onClick={() => setActiveView("library")}>
+          My library
+        </button>
+        <button onClick={() => setActiveView("discover")}>
+          Discover books
+        </button>
+      </div>
 
-      <ShelfManagement
-        shelves={shelves}
-        onCreateShelf={handleCreateShelf}
-        onRenameShelf={handleRenameShelf}
-        onDeleteShelf={handleDeleteShelf}
-        onSetFinishedShelf={handleSetFinishedShelf}
-      />
-      {/* summary */}
-      <Summary
-        booksPerShelf={booksPerShelf}
-        finishedThisYear={finishedThisYear}
-        averageRating={averageRating}
-        yearlyGoal={yearlyGoal}
-        goalPercentage={goalPercentage}
-        selectedYear={selectedYear}
-        setSelectedYear={setSelectedYear}
-        setYearlyGoal={setYearlyGoal}
-      />
+      {/* my library  */}
 
-      {/* search filter  */}
-      <SearchFilter
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        shelfFilter={shelfFilter}
-        setShelfFilter={setShelfFilter}
-        shelves={shelves}
-      />
+      {activeView === "library" && (
+        <>
+          {/* form */}
+          <AddBookForm onAddBook={handleAddBook} shelves={shelves} />
+          {/* pass shelves as prop so that AddBookForm can access the shelves */}
 
-      {/* booklist  */}
-      <BookList
-        books={paginatedBooks}
-        onDelete={handleDelete}
-        onEdit={handleEdit}
-        totalBooks={books.length}
-        shelves={shelves}
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={setCurrentPage}
-      />
+          <ShelfManagement
+            shelves={shelves}
+            onCreateShelf={handleCreateShelf}
+            onRenameShelf={handleRenameShelf}
+            onDeleteShelf={handleDeleteShelf}
+            onSetFinishedShelf={handleSetFinishedShelf}
+          />
+          {/* summary */}
+          <Summary
+            booksPerShelf={booksPerShelf}
+            finishedThisYear={finishedThisYear}
+            averageRating={averageRating}
+            yearlyGoal={yearlyGoal}
+            goalPercentage={goalPercentage}
+            selectedYear={selectedYear}
+            setSelectedYear={setSelectedYear}
+            setYearlyGoal={setYearlyGoal}
+          />
 
-      {showUndoToast && (
-        <UndoToast book={deletedBook} onUndo={handleUndoDelete} />
+          {/* search filter  */}
+          <SearchFilter
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            shelfFilter={shelfFilter}
+            setShelfFilter={setShelfFilter}
+            shelves={shelves}
+          />
+
+          {/* booklist  */}
+          <BookList
+            books={paginatedBooks}
+            onDelete={handleDelete}
+            onEdit={handleEdit}
+            totalBooks={books.length}
+            shelves={shelves}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+
+          {showUndoToast && (
+            <UndoToast book={deletedBook} onUndo={handleUndoDelete} />
+          )}
+        </>
       )}
+
+      {/* dicover  */}
+      {activeView === "discover" && <BookDiscover />}
     </div>
   );
 }
