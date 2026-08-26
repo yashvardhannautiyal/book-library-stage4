@@ -15,9 +15,22 @@ function BookDiscover() {
 
   const [selectedBook, setSelectedBook] = useState(null);
 
+  //    ---------------------------------------------------------------------------------------------------
+  // PAGINATION CALCULATION
   const RESULTS_PER_PAGE = 5;
 
-  const totalPages = Math.ceil(totalResults / RESULTS_PER_PAGE);
+  // total pages in OpenLibrary API
+  const totalAvailablePages = Math.ceil(totalResults / RESULTS_PER_PAGE);
+
+  // total pages according to search result 
+  const totalClientPages = Math.ceil(result.length / RESULTS_PER_PAGE);
+
+  const startIndex = (currentPage - 1) * RESULTS_PER_PAGE;
+
+  const paginatedBooks = result.slice(
+    startIndex,
+    startIndex + RESULTS_PER_PAGE
+  );
 
   //    ---------------------------------------------------------------------------------------------------
   // USEREF
@@ -27,7 +40,7 @@ function BookDiscover() {
 
   //    ---------------------------------------------------------------------------------------------------
   //SEARCH BOOK
-  const searchBooks = async (query, page = currentPage) => {
+  const searchBooks = async (query) => {
     // Cancel the previous request if it still exists
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -44,9 +57,7 @@ function BookDiscover() {
       setError("");
 
       const response = await fetch(
-        `https://openlibrary.org/search.json?q=${encodeURIComponent(
-          query,
-        )}&page=${page}&limit=${RESULTS_PER_PAGE}`,
+        `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}`,
         {
           signal: controller.signal,
         },
@@ -95,24 +106,24 @@ function BookDiscover() {
         return;
       }
 
-      searchBooks(searchQuery, currentPage);
+      searchBooks(searchQuery);
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [searchQuery, currentPage]);
+  }, [searchQuery]);
 
   //    ---------------------------------------------------------------------------------------------------
   //PAGE BUTTONS
   //previous page
   const handlePreviousPage = () => {
-    if (currentPage > 1) {
+    if (currentPage < 1) {
       setCurrentPage((prev) => prev - 1);
     }
   };
 
   // next page
   const handleNextPage = () => {
-    if (currentPage < totalPages) {
+    if (currentPage < totalClientPages) {
       setCurrentPage((prev) => prev + 1);
     }
   };
@@ -128,7 +139,6 @@ function BookDiscover() {
         onChange={(e) => {
           setSearchQuery(e.target.value);
           setCurrentPage(1);
-          setSelectedBook(null);
         }}
       />
 
@@ -156,7 +166,7 @@ function BookDiscover() {
 
       {/* DISPLAY RESULT  */}
       {!loading &&
-        result.map((book) => (
+        paginatedBooks.map((book) => (
           <div key={book.key}>
             <BookCover coverId={book.cover_i} title={book.title} />
             <h3>{book.title}</h3>
@@ -198,7 +208,7 @@ function BookDiscover() {
           <button onClick={() => setSelectedBook(null)}>Close Details</button>
         </div>
       )}
-      {totalResults > 0 && (
+      {result.length > 0 && (
         <div>
           <button
             onClick={handlePreviousPage}
@@ -208,12 +218,12 @@ function BookDiscover() {
           </button>
 
           <p>
-            Page {currentPage} of {totalPages}
+            Page {currentPage} of {totalClientPages}
           </p>
 
           <button
             onClick={handleNextPage}
-            disabled={currentPage === totalPages || loading}
+            disabled={currentPage === totalClientPages || loading}
           >
             Next
           </button>
