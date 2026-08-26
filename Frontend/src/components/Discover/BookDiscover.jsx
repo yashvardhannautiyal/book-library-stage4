@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import BookCover from "./BookCover";
 
-function BookDiscover() {
+function BookDiscover({ shelves, onAddBook }) {
   //    ---------------------------------------------------------------------------------------------------
   //STATES
   const [searchQuery, setSearchQuery] = useState("");
@@ -19,6 +19,10 @@ function BookDiscover() {
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState("");
   const [detailData, setDetailData] = useState(null);
+
+  //shelf state
+  const [selectedShelfId, setSelectedShelfId] = useState("");
+
   //    ---------------------------------------------------------------------------------------------------
   // PAGINATION CALCULATION
   const RESULTS_PER_PAGE = 5;
@@ -165,6 +169,31 @@ function BookDiscover() {
     }
   };
 
+  //    ---------------------------------------------------------------------------------------------------
+  // ADD BOOK TO LIBRARY
+  const handleAddToLibrary = (book) => {
+    // convert OpenBookLibrary format -> to -> existing library format
+    if (!selectedShelfId) {
+      return;
+    }
+
+    const importedBooks = {
+      id: crypto.randomUUID(),
+
+      title: book.title || "Untitled",
+
+      author: book.author_name?.join(", ") || "Unknown author",
+
+      shelfId: selectedShelfId,
+
+      rating: "",
+
+      coverId: book.cover_i ?? null,
+    };
+
+    onAddBook(importedBooks);
+  };
+
   return (
     <div>
       <h2>Discover Books</h2>
@@ -210,6 +239,31 @@ function BookDiscover() {
 
             <p>First published : {book.first_publish_year || "Unkown"}</p>
 
+            {/* CHOOSE SHELF */}
+            <div>
+              <label htmlFor="discover-shelf">Add books to:</label>
+
+              <select
+                id="discover-shelf"
+                value={selectedShelfId}
+                onChange={(e) => setSelectedShelfId(e.target.value)}
+              >
+                <option value="">Choose a shelf</option>
+
+                {shelves.map((shelf) => (
+                  <option key={shelf.id} value={shelf.id}>
+                    {shelf.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <button
+              onClick={() => handleAddToLibrary(book)}
+              disabled={!selectedShelfId}
+            >
+              Add to My Library
+            </button>
             <button
               onClick={() => {
                 setSelectedBook(book); //sets selected book
@@ -259,6 +313,33 @@ function BookDiscover() {
               >
                 View on OpenLibrary
               </a>
+
+              
+              {/* CHOOSE SHELF */}
+              <div>
+                <label htmlFor="discover-shelf">Add books to:</label>
+
+                <select
+                  id="discover-shelf"
+                  value={selectedShelfId}
+                  onChange={(e) => setSelectedShelfId(e.target.value)}
+                >
+                  <option value="">Choose a shelf</option>
+
+                  {shelves.map((shelf) => (
+                    <option key={shelf.id} value={shelf.id}>
+                      {shelf.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <button
+                onClick={() => handleAddToLibrary(selectedBook)}
+                disabled={!selectedShelfId}
+              >
+                Add to My Library
+              </button>
             </div>
           )}
 

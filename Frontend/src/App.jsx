@@ -519,7 +519,11 @@ function App() {
       )}
 
       {/* dicover  */}
-      {activeView === "discover" && <BookDiscover />}
+      {activeView === "discover" &&
+       <BookDiscover 
+       shelves={shelves}
+       onAddBook={handleAddBook}
+       />}
     </div>
   );
 }
