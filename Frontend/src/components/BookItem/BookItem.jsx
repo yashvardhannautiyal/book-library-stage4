@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import "./BookItem.css";
 import BookHelper from "../../utils/BookHelper";
 import BookValidation from "../../utils/BookValidation";
+import BookCover from "../Discover/BookCover";
 
 function BookItem({ book, onDelete, onEdit, shelves }) {
   //edit mode
@@ -221,6 +222,9 @@ function BookItem({ book, onDelete, onEdit, shelves }) {
       ) : (
         // display mode
         <div id="details">
+          {/* book cover  */}
+          <BookCover coverId={book.coverId} title={book.title} />
+
           {/* title  */}
           <h3 id="book-title">{book.title}</h3>
           {/* author  */}

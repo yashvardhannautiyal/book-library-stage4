@@ -314,7 +314,6 @@ function BookDiscover({ shelves, onAddBook }) {
                 View on OpenLibrary
               </a>
 
-              
               {/* CHOOSE SHELF */}
               <div>
                 <label htmlFor="discover-shelf">Add books to:</label>
