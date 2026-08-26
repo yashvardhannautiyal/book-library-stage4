@@ -15,6 +15,10 @@ function BookDiscover() {
 
   const [selectedBook, setSelectedBook] = useState(null);
 
+  // detail states
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [detailError, setDetailError] = useState("");
+  const [detailData, setDetailData] = useState(null);
   //    ---------------------------------------------------------------------------------------------------
   // PAGINATION CALCULATION
   const RESULTS_PER_PAGE = 5;
@@ -22,14 +26,14 @@ function BookDiscover() {
   // total pages in OpenLibrary API
   const totalAvailablePages = Math.ceil(totalResults / RESULTS_PER_PAGE);
 
-  // total pages according to search result 
+  // total pages according to search result
   const totalClientPages = Math.ceil(result.length / RESULTS_PER_PAGE);
 
   const startIndex = (currentPage - 1) * RESULTS_PER_PAGE;
 
   const paginatedBooks = result.slice(
     startIndex,
-    startIndex + RESULTS_PER_PAGE
+    startIndex + RESULTS_PER_PAGE,
   );
 
   //    ---------------------------------------------------------------------------------------------------
@@ -91,6 +95,39 @@ function BookDiscover() {
   };
 
   //    ---------------------------------------------------------------------------------------------------
+  // FETCH BOOK DETAILS
+  const bookDetails = async (book) => {
+    // try block
+    try {
+      setDetailLoading(true);
+      setDetailError("");
+      setDetailData(null);
+
+      const response = await fetch(`https://openlibrary.org${book.key}.json`);
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to fetch book details. Status : ${response.status}`,
+        );
+      }
+
+      const data = await response.json();
+
+      setDetailData(data);
+    } catch (err) {
+      // catch block
+      console.log("Failed to fetch book details : ", err);
+
+      setDetailError(
+        err.message || "Something went wrong while loading book details.",
+      );
+    } finally {
+      // finally block
+      setDetailLoading(false);
+    }
+  };
+
+  //    ---------------------------------------------------------------------------------------------------
   //USE EFFECT
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -116,7 +153,7 @@ function BookDiscover() {
   //PAGE BUTTONS
   //previous page
   const handlePreviousPage = () => {
-    if (currentPage < 1) {
+    if (currentPage > 1) {
       setCurrentPage((prev) => prev - 1);
     }
   };
@@ -158,9 +195,7 @@ function BookDiscover() {
         <div>
           <p>{error}</p>
 
-          <button onClick={() => searchBooks(searchQuery, currentPage)}>
-            Retry
-          </button>
+          <button onClick={() => searchBooks(searchQuery)}>Retry</button>
         </div>
       )}
 
@@ -175,39 +210,72 @@ function BookDiscover() {
 
             <p>First published : {book.first_publish_year || "Unkown"}</p>
 
-            <button onClick={() => setSelectedBook(book)}>View details </button>
+            <button
+              onClick={() => {
+                setSelectedBook(book); //sets selected book
+                bookDetails(book); //fetch details from API
+              }}
+            >
+              View details{" "}
+            </button>
           </div>
         ))}
 
-      {/* DISPLAY DETAILED INFO  */}
+      {/* --------------------------------------------------- */}
+      {/* DETAILED VIEW  */}
       {selectedBook && (
         <div>
           <h2>{selectedBook.title}</h2>
 
-          <h3>Subjects</h3>
+          {/* loading */}
+          {detailLoading && <p>Loading book details...</p>}
 
-          {selectedBook.subject?.length > 0 ? (
-            <p>{selectedBook.subject.slice(0, 10).join(", ")}</p>
-          ) : (
-            <p>No subjects available.</p>
+          {/* error */}
+          {!detailLoading && detailError && (
+            <div>
+              <p>{detailError}</p>
+
+              <button onClick={() => bookDetails(selectedBook)}>Retry</button>
+            </div>
           )}
 
-          <p>
-            <strong>Edition count:</strong>{" "}
-            {selectedBook.edition_count || "Unknown"}
-          </p>
+          {/* success */}
+          {!detailLoading && !detailError && detailData && (
+            <div>
+              <h3>Subjects</h3>
 
-          <a
-            href={`https://openlibrary.org${selectedBook.key}`}
-            target="_blank"
-            rel="noreferrer"
+              {detailData.subjects?.length > 0 ? (
+                <p>{detailData.subjects.slice(0, 10).join(", ")}</p>
+              ) : (
+                <p>No subjects available.</p>
+              )}
+
+              <p>Edition count: {selectedBook.edition_count ?? "Unknown"}</p>
+
+              <a
+                href={`https://openlibrary.org${selectedBook.key}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                View on OpenLibrary
+              </a>
+            </div>
+          )}
+
+          <button
+            onClick={() => {
+              setSelectedBook(null);
+              setDetailData(null);
+              setDetailError("");
+            }}
           >
-            View on OpenLibrary
-          </a>
-
-          <button onClick={() => setSelectedBook(null)}>Close Details</button>
+            Close Details
+          </button>
         </div>
       )}
+
+      {/* --------------------------------------------------- */}
+      {/* PREVIOUS-NEXT BUTTONS  */}
       {result.length > 0 && (
         <div>
           <button
