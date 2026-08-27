@@ -329,8 +329,16 @@ function BookDiscover({ shelves, onAddBook }) {
             </div>
           )}
 
+          {/* empty  */}
+          {!detailLoading &&
+            !detailError &&
+            detailData &&
+            Object.keys(detailData).length === 0 && (
+              <p>No additional details are available for this book.</p>
+            )}
+
           {/* success */}
-          {!detailLoading && !detailError && detailData && (
+          {!detailLoading && !detailError && detailData && Object.keys(detailData).length > 0 &&  (
             <div>
               <h3>Subjects</h3>
 
