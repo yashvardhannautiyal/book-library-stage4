@@ -9,8 +9,9 @@ function BookDiscover({ shelves, onAddBook }) {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
-  const [currentPage, setCurrentPage] = useState(1);
+  
+  const [remotePage, setRemotePage] = useState(1);
+  const [localPage, setLocalPage] = useState(1);
   const [totalResults, setTotalResults] = useState(0);
 
   const [selectedBook, setSelectedBook] = useState(null);
@@ -28,12 +29,13 @@ function BookDiscover({ shelves, onAddBook }) {
   const RESULTS_PER_PAGE = 5;
 
   // total pages in OpenLibrary API
-  const totalAvailablePages = Math.ceil(totalResults / RESULTS_PER_PAGE);
+  const totalRemotePages = Math.ceil(totalResults / RESULTS_PER_PAGE);
+
 
   // total pages according to search result
   const totalClientPages = Math.ceil(result.length / RESULTS_PER_PAGE);
 
-  const startIndex = (currentPage - 1) * RESULTS_PER_PAGE;
+  const startIndex = (localPage - 1) * RESULTS_PER_PAGE;
 
   const paginatedBooks = result.slice(
     startIndex,
@@ -48,7 +50,7 @@ function BookDiscover({ shelves, onAddBook }) {
 
   //    ---------------------------------------------------------------------------------------------------
   //SEARCH BOOK
-  const searchBooks = async (query) => {
+  const searchBooks = async (query, page = remotePage) => {
     // Cancel the previous request if it still exists
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -65,7 +67,7 @@ function BookDiscover({ shelves, onAddBook }) {
       setError("");
 
       const response = await fetch(
-        `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}`,
+        `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&page=${page}`,
         {
           signal: controller.signal,
         },
@@ -147,27 +149,31 @@ function BookDiscover({ shelves, onAddBook }) {
         return;
       }
 
-      searchBooks(searchQuery);
+      searchBooks(searchQuery, remotePage);
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [searchQuery]);
+  }, [searchQuery, remotePage]);
 
   //    ---------------------------------------------------------------------------------------------------
   //PAGE BUTTONS
   //previous page
   const handlePreviousPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage((prev) => prev - 1);
+    if (remotePage > 1) {
+      setRemotePage((prev) => prev - 1);
     }
   };
 
   // next page
   const handleNextPage = () => {
-    if (currentPage < totalClientPages) {
-      setCurrentPage((prev) => prev + 1);
+    if (remotePage < totalRemotePages) {
+      setRemotePage((prev) => prev + 1);
     }
   };
+
+  useEffect(() => {
+  setLocalPage(1);
+}, [remotePage]);
 
   //    ---------------------------------------------------------------------------------------------------
   // ADD BOOK TO LIBRARY
@@ -204,7 +210,8 @@ function BookDiscover({ shelves, onAddBook }) {
         value={searchQuery}
         onChange={(e) => {
           setSearchQuery(e.target.value);
-          setCurrentPage(1);
+          setRemotePage(1);
+          setLocalPage(1);
         }}
       />
 
@@ -360,18 +367,18 @@ function BookDiscover({ shelves, onAddBook }) {
         <div>
           <button
             onClick={handlePreviousPage}
-            disabled={currentPage === 1 || loading}
+            disabled={remotePage === 1 || loading}
           >
             Previous
           </button>
 
           <p>
-            Page {currentPage} of {totalClientPages}
+            Page {remotePage} of {totalRemotePages}
           </p>
 
           <button
             onClick={handleNextPage}
-            disabled={currentPage === totalClientPages || loading}
+            disabled={remotePage === totalRemotePages || loading}
           >
             Next
           </button>
