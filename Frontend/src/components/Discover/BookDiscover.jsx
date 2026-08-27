@@ -9,7 +9,7 @@ function BookDiscover({ shelves, onAddBook }) {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  
+
   const [remotePage, setRemotePage] = useState(1);
   const [localPage, setLocalPage] = useState(1);
   const [totalResults, setTotalResults] = useState(0);
@@ -31,7 +31,6 @@ function BookDiscover({ shelves, onAddBook }) {
   // total pages in OpenLibrary API
   const totalRemotePages = Math.ceil(totalResults / RESULTS_PER_PAGE);
 
-
   // total pages according to search result
   const totalClientPages = Math.ceil(result.length / RESULTS_PER_PAGE);
 
@@ -43,7 +42,8 @@ function BookDiscover({ shelves, onAddBook }) {
   );
 
   //    ---------------------------------------------------------------------------------------------------
-  // USEREF
+  // SEARCH RACE SAFETY
+  //USEREF
   //used to avoid previous searchQuery to show result when the current searchQuery result is shown
   //cancel the old request
   const abortControllerRef = useRef(null);
@@ -101,15 +101,30 @@ function BookDiscover({ shelves, onAddBook }) {
   };
 
   //    ---------------------------------------------------------------------------------------------------
+  // DETAILS RACE SAFETY
+  const detailAbortControllerRef = useRef(null);
   // FETCH BOOK DETAILS
   const bookDetails = async (book) => {
+    // cancel the previous detail request
+    if (detailAbortControllerRef.current) {
+      detailAbortControllerRef.current.abort();
+    }
+
+    //new controller for this detail request
+    const controller = new AbortController();
+
+    // store it as curret detail request
+    detailAbortControllerRef.current = controller;
+
     // try block
     try {
       setDetailLoading(true);
       setDetailError("");
       setDetailData(null);
 
-      const response = await fetch(`https://openlibrary.org${book.key}.json`);
+      const response = await fetch(`https://openlibrary.org${book.key}.json`, {
+        signal: controller.signal,
+      });
 
       if (!response.ok) {
         throw new Error(
@@ -119,17 +134,31 @@ function BookDiscover({ shelves, onAddBook }) {
 
       const data = await response.json();
 
-      setDetailData(data);
+      //obly latest detail request will update
+      if (detailAbortControllerRef.current === controller) {
+        setDetailData(data);
+      }
     } catch (err) {
       // catch block
+
+      //ignore error caused by aborting old request
+      if (err.name === "AbortError") {
+        return;
+      }
+
       console.log("Failed to fetch book details : ", err);
 
-      setDetailError(
-        err.message || "Something went wrong while loading book details.",
-      );
+      if (detailAbortControllerRef.current === controller) {
+        setDetailError(
+          err.message || "Something went wrong while loading book details.",
+        );
+      }
     } finally {
       // finally block
-      setDetailLoading(false);
+      // Only the current request will stop the loading state
+      if (detailAbortControllerRef.current === controller) {
+        setDetailLoading(false);
+      }
     }
   };
 
@@ -172,8 +201,8 @@ function BookDiscover({ shelves, onAddBook }) {
   };
 
   useEffect(() => {
-  setLocalPage(1);
-}, [remotePage]);
+    setLocalPage(1);
+  }, [remotePage]);
 
   //    ---------------------------------------------------------------------------------------------------
   // ADD BOOK TO LIBRARY
