@@ -28,8 +28,12 @@ function BookDiscover({ shelves, onAddBook }) {
   // PAGINATION CALCULATION
   const RESULTS_PER_PAGE = 5;
 
+  const LIBRARY_API_RESULTS_PER_PAGE = 100;
+
   // total pages in OpenLibrary API
-  const totalRemotePages = Math.ceil(totalResults / RESULTS_PER_PAGE);
+  const totalRemotePages = Math.ceil(
+    totalResults / LIBRARY_API_RESULTS_PER_PAGE,
+  );
 
   // total pages according to search result
   const totalClientPages = Math.ceil(result.length / RESULTS_PER_PAGE);
@@ -67,7 +71,7 @@ function BookDiscover({ shelves, onAddBook }) {
       setError("");
 
       const response = await fetch(
-        `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&page=${page}`,
+        `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&page=${page}&limit=100`,
         {
           signal: controller.signal,
         },
@@ -186,17 +190,32 @@ function BookDiscover({ shelves, onAddBook }) {
 
   //    ---------------------------------------------------------------------------------------------------
   //PAGE BUTTONS
-  //previous page
+  // API page change
+  //API previous page
   const handlePreviousPage = () => {
     if (remotePage > 1) {
       setRemotePage((prev) => prev - 1);
     }
   };
 
-  // next page
+  // API next page
   const handleNextPage = () => {
     if (remotePage < totalRemotePages) {
       setRemotePage((prev) => prev + 1);
+    }
+  };
+
+  //LOCAL PAGE CHANGES
+  const handleLocalPreviousPage = () => {
+    if (localPage > 1) {
+      setLocalPage((prev) => prev - 1);
+    }
+  };
+
+  // next page
+  const handleLocalNextPage = () => {
+    if (localPage < totalClientPages) {
+      setLocalPage((prev) => prev + 1);
     }
   };
 
@@ -338,53 +357,56 @@ function BookDiscover({ shelves, onAddBook }) {
             )}
 
           {/* success */}
-          {!detailLoading && !detailError && detailData && Object.keys(detailData).length > 0 &&  (
-            <div>
-              <h3>Subjects</h3>
-
-              {detailData.subjects?.length > 0 ? (
-                <p>{detailData.subjects.slice(0, 10).join(", ")}</p>
-              ) : (
-                <p>No subjects available.</p>
-              )}
-
-              <p>Edition count: {selectedBook.edition_count ?? "Unknown"}</p>
-
-              <a
-                href={`https://openlibrary.org${selectedBook.key}`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                View on OpenLibrary
-              </a>
-
-              {/* CHOOSE SHELF */}
+          {!detailLoading &&
+            !detailError &&
+            detailData &&
+            Object.keys(detailData).length > 0 && (
               <div>
-                <label htmlFor="discover-shelf">Add books to:</label>
+                <h3>Subjects</h3>
 
-                <select
-                  id="discover-shelf"
-                  value={selectedShelfId}
-                  onChange={(e) => setSelectedShelfId(e.target.value)}
+                {detailData.subjects?.length > 0 ? (
+                  <p>{detailData.subjects.slice(0, 10).join(", ")}</p>
+                ) : (
+                  <p>No subjects available.</p>
+                )}
+
+                <p>Edition count: {selectedBook.edition_count ?? "Unknown"}</p>
+
+                <a
+                  href={`https://openlibrary.org${selectedBook.key}`}
+                  target="_blank"
+                  rel="noreferrer"
                 >
-                  <option value="">Choose a shelf</option>
+                  View on OpenLibrary
+                </a>
 
-                  {shelves.map((shelf) => (
-                    <option key={shelf.id} value={shelf.id}>
-                      {shelf.name}
-                    </option>
-                  ))}
-                </select>
+                {/* CHOOSE SHELF */}
+                <div>
+                  <label htmlFor="discover-shelf">Add books to:</label>
+
+                  <select
+                    id="discover-shelf"
+                    value={selectedShelfId}
+                    onChange={(e) => setSelectedShelfId(e.target.value)}
+                  >
+                    <option value="">Choose a shelf</option>
+
+                    {shelves.map((shelf) => (
+                      <option key={shelf.id} value={shelf.id}>
+                        {shelf.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <button
+                  onClick={() => handleAddToLibrary(selectedBook)}
+                  disabled={!selectedShelfId}
+                >
+                  Add to My Library
+                </button>
               </div>
-
-              <button
-                onClick={() => handleAddToLibrary(selectedBook)}
-                disabled={!selectedShelfId}
-              >
-                Add to My Library
-              </button>
-            </div>
-          )}
+            )}
 
           <button
             onClick={() => {
@@ -403,21 +425,40 @@ function BookDiscover({ shelves, onAddBook }) {
       {result.length > 0 && (
         <div>
           <button
-            onClick={handlePreviousPage}
-            disabled={remotePage === 1 || loading}
+            onClick={handleLocalPreviousPage}
+            disabled={localPage === 1 || loading}
           >
             Previous
           </button>
 
           <p>
-            Page {remotePage} of {totalRemotePages}
+            Page {localPage} of {totalClientPages}
+          </p>
+
+          <button
+            onClick={handleLocalNextPage}
+            disabled={localPage === totalClientPages || loading}
+          >
+            Next
+          </button>
+
+          {/* REMOTE PAGINATION */}
+          <button
+            onClick={handlePreviousPage}
+            disabled={remotePage === 1 || loading}
+          >
+            Previous API Page
+          </button>
+
+          <p>
+            OpenLibrary Page {remotePage} of {totalRemotePages}
           </p>
 
           <button
             onClick={handleNextPage}
             disabled={remotePage === totalRemotePages || loading}
           >
-            Next
+            Next API Page
           </button>
         </div>
       )}
