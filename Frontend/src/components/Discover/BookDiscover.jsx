@@ -10,7 +10,6 @@ function BookDiscover({ shelves, onAddBook }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const [remotePage, setRemotePage] = useState(1);
   const [localPage, setLocalPage] = useState(1);
   const [totalResults, setTotalResults] = useState(0);
 
@@ -30,15 +29,18 @@ function BookDiscover({ shelves, onAddBook }) {
 
   const LIBRARY_API_RESULTS_PER_PAGE = 100;
 
-  // total pages in OpenLibrary API
-  const totalRemotePages = Math.ceil(
-    totalResults / LIBRARY_API_RESULTS_PER_PAGE,
-  );
+  // Total visible pages across all OpenLibrary results
+  const totalPages = Math.ceil(totalResults / RESULTS_PER_PAGE);
 
-  // total pages according to search result
-  const totalClientPages = Math.ceil(result.length / RESULTS_PER_PAGE);
+  // How many visible pages are contained in one API page
+  const CLIENT_PAGES_PER_API_PAGE =
+    LIBRARY_API_RESULTS_PER_PAGE / RESULTS_PER_PAGE;
 
-  const startIndex = (localPage - 1) * RESULTS_PER_PAGE;
+  const requiredRemotePage = Math.ceil(localPage / CLIENT_PAGES_PER_API_PAGE);
+
+  // "% CLIENT_PAGES_PER_API_PAGE" resets the slicing when a new API page is downloaded
+  const startIndex =
+    ((localPage - 1) % CLIENT_PAGES_PER_API_PAGE) * RESULTS_PER_PAGE;
 
   const paginatedBooks = result.slice(
     startIndex,
@@ -54,7 +56,7 @@ function BookDiscover({ shelves, onAddBook }) {
 
   //    ---------------------------------------------------------------------------------------------------
   //SEARCH BOOK
-  const searchBooks = async (query, page = remotePage) => {
+  const searchBooks = async (query, page) => {
     // Cancel the previous request if it still exists
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -83,8 +85,10 @@ function BookDiscover({ shelves, onAddBook }) {
 
       const data = await response.json();
 
-      setResult(data.docs || []);
-      setTotalResults(data.numFound || 0);
+      if (abortControllerRef.current === controller) {
+        setResult(data.docs || []);
+        setTotalResults(data.numFound || 0);
+      }
     } catch (err) {
       // Abort is expected when a newer search starts
       if (err.name === "AbortError") {
@@ -182,46 +186,26 @@ function BookDiscover({ shelves, onAddBook }) {
         return;
       }
 
-      searchBooks(searchQuery, remotePage);
+      searchBooks(searchQuery, requiredRemotePage);
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [searchQuery, remotePage]);
+  }, [searchQuery, requiredRemotePage]);
 
   //    ---------------------------------------------------------------------------------------------------
   //PAGE BUTTONS
-  // API page change
-  //API previous page
   const handlePreviousPage = () => {
-    if (remotePage > 1) {
-      setRemotePage((prev) => prev - 1);
-    }
-  };
-
-  // API next page
-  const handleNextPage = () => {
-    if (remotePage < totalRemotePages) {
-      setRemotePage((prev) => prev + 1);
-    }
-  };
-
-  //LOCAL PAGE CHANGES
-  const handleLocalPreviousPage = () => {
     if (localPage > 1) {
       setLocalPage((prev) => prev - 1);
     }
   };
 
   // next page
-  const handleLocalNextPage = () => {
-    if (localPage < totalClientPages) {
+  const handleNextPage = () => {
+    if (localPage < totalPages) {
       setLocalPage((prev) => prev + 1);
     }
   };
-
-  useEffect(() => {
-    setLocalPage(1);
-  }, [remotePage]);
 
   //    ---------------------------------------------------------------------------------------------------
   // ADD BOOK TO LIBRARY
@@ -258,7 +242,6 @@ function BookDiscover({ shelves, onAddBook }) {
         value={searchQuery}
         onChange={(e) => {
           setSearchQuery(e.target.value);
-          setRemotePage(1);
           setLocalPage(1);
         }}
       />
@@ -425,40 +408,21 @@ function BookDiscover({ shelves, onAddBook }) {
       {result.length > 0 && (
         <div>
           <button
-            onClick={handleLocalPreviousPage}
+            onClick={handlePreviousPage}
             disabled={localPage === 1 || loading}
           >
             Previous
           </button>
 
           <p>
-            Page {localPage} of {totalClientPages}
-          </p>
-
-          <button
-            onClick={handleLocalNextPage}
-            disabled={localPage === totalClientPages || loading}
-          >
-            Next
-          </button>
-
-          {/* REMOTE PAGINATION */}
-          <button
-            onClick={handlePreviousPage}
-            disabled={remotePage === 1 || loading}
-          >
-            Previous API Page
-          </button>
-
-          <p>
-            OpenLibrary Page {remotePage} of {totalRemotePages}
+            Page {localPage} of {totalPages}
           </p>
 
           <button
             onClick={handleNextPage}
-            disabled={remotePage === totalRemotePages || loading}
+            disabled={localPage === totalPages || loading}
           >
-            Next API Page
+            Next
           </button>
         </div>
       )}
