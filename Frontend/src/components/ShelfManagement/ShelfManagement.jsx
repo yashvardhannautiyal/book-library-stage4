@@ -1,4 +1,5 @@
 import { useState } from "react";
+import "./ShelfManagement.css"
 
 function ShelfManagement({
   shelves,
@@ -67,11 +68,15 @@ function ShelfManagement({
     setDestinationShelfId("");
   };
   return (
-    <div>
-      <h2>Shelves</h2>
+    <div id="main-container">
+      {/* Add shelf container  */}
+      <div id="heading-container">
+        <p>ADD SHELF</p>
+      </div>
+
 
       {/* create shelf  */}
-      <div>
+      <div className="create-container">
         <input
           type="text"
           placeholder="Enter new shelf name"
@@ -88,7 +93,7 @@ function ShelfManagement({
           <div key={shelf.id}>
             {editingShelfId === shelf.id ? (
               // rename mode
-              <div>
+              <div className="rename-container">
                 <input
                   type="text"
                   value={editingName}
@@ -108,9 +113,10 @@ function ShelfManagement({
               </div>
             ) : deletingShelfId === shelf.id ? (
               // delete mode
-              <div>
+              <div className="delete-main-container">
                 <p>Delete "{shelf.name}" and move its books to:</p>
 
+                <div className="delete-sub-container">
                 <select
                   value={destinationShelfId}
                   onChange={(e) => setDestinationShelfId(e.target.value)}
@@ -127,18 +133,19 @@ function ShelfManagement({
                 </select>
 
                 <button onClick={handleDelete} disabled={!destinationShelfId}>
-                  Confirm Delete
+                  Confirm
                 </button>
 
                 <button onClick={cancelDelete}>Cancel</button>
+                </div>
               </div>
             ) : (
               // NORMAL MODE
-              <div>
+              <div className="mode-container">
                 <p>{shelf.name}</p>
 
                 {shelf.isFinishedShelf ? (
-                  <p>Finished Shelf</p>
+                  <p className="finished">Finished Shelf</p>
                 ) : (
                   <button onClick={() => onSetFinishedShelf(shelf.id)}>
                     Mark as Finished Shelf

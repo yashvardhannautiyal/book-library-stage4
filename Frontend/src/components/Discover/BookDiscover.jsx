@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import BookCover from "./BookCover";
+import "./BookDiscover.css";
 
 function BookDiscover({ shelves, onAddBook }) {
   //    ---------------------------------------------------------------------------------------------------
@@ -176,6 +177,7 @@ function BookDiscover({ shelves, onAddBook }) {
     const timer = setTimeout(() => {
       if (!searchQuery.trim()) {
         setResult([]);
+        setTotalResults(0);
         setError("");
 
         if (abortControllerRef.current) {
@@ -233,8 +235,10 @@ function BookDiscover({ shelves, onAddBook }) {
   };
 
   return (
-    <div>
-      <h2>Discover Books</h2>
+    <div id="main-container">
+      <div id="heading-container">
+        <p>DISCOVER BOOKS</p>
+      </div>
 
       <input
         type="text"
@@ -247,11 +251,11 @@ function BookDiscover({ shelves, onAddBook }) {
       />
 
       {/* DISPLAY loading  */}
-      {loading && <p>Searching for books</p>}
+      {loading && <p className="txt-info">Searching for books</p>}
 
       {/* DISPLAY - if user enters invalid book */}
       {!loading && !error && searchQuery.trim() && result.length === 0 && (
-        <p>
+        <p className="txt-info">
           No books found for "{searchQuery}". Try another title, author, or
           keyword.
         </p>
@@ -259,8 +263,8 @@ function BookDiscover({ shelves, onAddBook }) {
 
       {/* DISPLAY Error */}
       {!loading && error && (
-        <div>
-          <p>{error}</p>
+        <div className="error-container">
+          <p>{error} !</p>
 
           <button onClick={() => searchBooks(searchQuery)}>Retry</button>
         </div>
@@ -269,47 +273,55 @@ function BookDiscover({ shelves, onAddBook }) {
       {/* DISPLAY RESULT  */}
       {!loading &&
         paginatedBooks.map((book) => (
-          <div key={book.key}>
-            <BookCover coverId={book.cover_i} title={book.title} />
-            <h3>{book.title}</h3>
-
-            <p>Author : {book.author_name?.join(", ") || "Unknown author"}</p>
-
-            <p>First published : {book.first_publish_year || "Unkown"}</p>
-
-            {/* CHOOSE SHELF */}
+          <div key={book.key} className="result-container">
+            <BookCover coverId={book.cover_i} title={book.title} className="book-cover" />
             <div>
-              <label htmlFor="discover-shelf">Add books to:</label>
+              {/* details container  */}
+              <div className="details-container">
+                <h3>{book.title}</h3>
 
-              <select
-                id="discover-shelf"
-                value={selectedShelfId}
-                onChange={(e) => setSelectedShelfId(e.target.value)}
-              >
-                <option value="">Choose a shelf</option>
+                <p>
+                  Author : {book.author_name?.join(", ") || "Unknown author"}
+                </p>
 
-                {shelves.map((shelf) => (
-                  <option key={shelf.id} value={shelf.id}>
-                    {shelf.name}
-                  </option>
-                ))}
-              </select>
+                <p>First published : {book.first_publish_year || "Unkown"}</p>
+              </div>
+
+              {/* choose self + button container  */}
+              {/* CHOOSE SHELF */}
+              <div className="choose-container">
+                <label htmlFor="discover-shelf">Add books to:</label>
+
+                <select
+                  id="discover-shelf"
+                  value={selectedShelfId}
+                  onChange={(e) => setSelectedShelfId(e.target.value)}
+                >
+                  <option value="">Choose a shelf</option>
+
+                  {shelves.map((shelf) => (
+                    <option key={shelf.id} value={shelf.id}>
+                      {shelf.name}
+                    </option>
+                  ))}
+                </select>
+
+                <button
+                  onClick={() => handleAddToLibrary(book)}
+                  disabled={!selectedShelfId}
+                >
+                  Add to My Library
+                </button>
+                <button
+                  onClick={() => {
+                    setSelectedBook(book); //sets selected book
+                    bookDetails(book); //fetch details from API
+                  }}
+                >
+                  View details{" "}
+                </button>
+              </div>
             </div>
-
-            <button
-              onClick={() => handleAddToLibrary(book)}
-              disabled={!selectedShelfId}
-            >
-              Add to My Library
-            </button>
-            <button
-              onClick={() => {
-                setSelectedBook(book); //sets selected book
-                bookDetails(book); //fetch details from API
-              }}
-            >
-              View details{" "}
-            </button>
           </div>
         ))}
 
@@ -406,7 +418,7 @@ function BookDiscover({ shelves, onAddBook }) {
       {/* --------------------------------------------------- */}
       {/* PREVIOUS-NEXT BUTTONS  */}
       {result.length > 0 && (
-        <div>
+        <div className="pagination-btn-container">
           <button
             onClick={handlePreviousPage}
             disabled={localPage === 1 || loading}

@@ -222,9 +222,12 @@ function BookItem({ book, onDelete, onEdit, shelves }) {
       ) : (
         // display mode
         <div id="details">
+          <div className="book-cover-container">
           {/* book cover  */}
           <BookCover coverId={book.coverId} title={book.title} />
+          </div>
 
+          <div className="book-details-container">
           {/* title  */}
           <h3 id="book-title">{book.title}</h3>
           {/* author  */}
@@ -249,6 +252,7 @@ function BookItem({ book, onDelete, onEdit, shelves }) {
             <button className="delete-btn" onClick={() => onDelete(book)}>
               Delete
             </button>
+          </div>
           </div>
         </div>
       )}

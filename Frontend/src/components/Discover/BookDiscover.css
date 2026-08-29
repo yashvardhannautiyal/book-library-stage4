@@ -1,0 +1,53 @@
+.error-container {
+    display: flex;
+    padding-top: 10px;
+    gap: 10px;
+    align-items: center;
+}
+
+.error-container p {
+    color: rgb(230, 36, 36);
+}
+
+.error-container button {
+    padding: 3px 15px;
+    border: 1px solid rgba(70, 136, 70, 0.819);
+    border-radius: 6px;
+}
+
+.txt-info {
+    padding-top: 10px;
+}
+
+
+/* result display */
+.result-container {
+    display: flex;
+    gap: 10px;
+    padding: 15px 0px;
+    align-items: center;
+}
+
+.choose-container,
+.details-container {
+    padding: 8px;
+}
+
+button {
+    padding: 2px 10px;
+    align-items: center;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.3s;
+    border: 1px solid rgba(70, 136, 70, 0.819);
+}
+
+
+
+/* pagination btn  */
+.pagination-btn-container{
+    display: flex;
+    gap: 10px;
+    padding-top: 16px;
+}

@@ -11,8 +11,7 @@ function Summary({
   setSelectedYear,
   setYearlyGoal,
 }) {
-
-   const currentYear = new Date().getFullYear();
+  const currentYear = new Date().getFullYear();
   return (
     <div id="main-container">
       {/* heading container  */}
@@ -34,49 +33,54 @@ function Summary({
         </div>
       </div>
       {/* yearly goal */}
-      <div>
-        <h3>Yearly Reading Goal</h3>
+      <div className="yearly-container">
+        <div id="heading-container">
+          <p>Yearly Reading Goal</p>
+        </div>
 
-        {/* year selection */}
-        <label>
-          Year:
-          <select
-            value={selectedYear}
-            onChange={(e) => setSelectedYear(Number(e.target.value))}
-          >
-            <option value={currentYear}>{currentYear}</option>
+        <div className="yearly-sub-container">
+          {/* year selection */}
 
-            <option value={currentYear - 1}>{currentYear - 1}</option>
+          <label>
+            Year:
+            <select
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(Number(e.target.value))}
+            >
+              <option value={currentYear}>{currentYear}</option>
 
-            <option value={currentYear - 2}>{currentYear - 2}</option>
-          </select>
-        </label>
+              <option value={currentYear - 1}>{currentYear - 1}</option>
 
-        {/* goal control */}
-        <label>
-          Goal:
-          <input
-            type="number"
-            min="0"
-            value={yearlyGoal}
-            onChange={(e) => setYearlyGoal(Number(e.target.value))}
-          />
-        </label>
+              <option value={currentYear - 2}>{currentYear - 2}</option>
+            </select>
+          </label>
 
-        {/* progress */}
-        {yearlyGoal === 0 ? (
-          <p>No yearly goal set.</p>
-        ) : (
-          <div>
-            <p>
-              Finished: {finishedThisYear} / {yearlyGoal}
-            </p>
+          {/* goal control */}
+          <label>
+            Goal:
+            <input
+              type="number"
+              min="0"
+              value={yearlyGoal}
+              onChange={(e) => setYearlyGoal(Number(e.target.value))}
+            />
+          </label>
 
-            <progress value={goalPercentage} max="100" />
+          {/* progress */}
+          {yearlyGoal === 0 ? (
+            <p>No yearly goal set.</p>
+          ) : (
+            <div>
+              <p>
+                Finished: {finishedThisYear} / {yearlyGoal}
+              </p>
 
-            <p>{goalPercentage}%</p>
-          </div>
-        )}
+              <progress value={goalPercentage} max="100" />
+
+              <p>{goalPercentage}%</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

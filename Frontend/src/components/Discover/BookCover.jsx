@@ -1,4 +1,5 @@
 import { useState } from "react";
+import "./BookCover.css"
 
 function BookCover({ coverId, title }) {
   const [imageError, setImageError] = useState(false);

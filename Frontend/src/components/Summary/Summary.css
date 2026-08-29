@@ -42,3 +42,27 @@
   color: rgba(70, 136, 70, 0.819);
   font-size: 20px;
 }
+
+
+
+/* yearly container  */
+.yearly-container{
+  padding-top: 35px;
+}
+
+.yearly-container p{
+  padding: 0;
+  margin: 0;
+}
+
+.yearly-sub-container{
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.yearly-sub-container input{
+  padding: 10px 5px 10px 5px;
+  border-radius: 6px;
+  border: 1px solid rgba(70, 136, 70, 0.819);
+}

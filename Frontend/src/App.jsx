@@ -3,10 +3,10 @@ import AddBookForm from "./components/AddBookForm/AddBookForm.jsx";
 import BookList from "./components/BookList/BookList.jsx";
 import Summary from "./components/Summary/Summary.jsx";
 import SearchFilter from "./components/SearchFilter/SearchFilter.jsx";
-import BookHelper from "./utils/BookHelper.js";
 import ShelfManagement from "./components/ShelfManagement/ShelfManagement.jsx";
 import UndoToast from "./components/UndoToast/UndoToast.jsx";
 import BookDiscover from "./components/Discover/BookDiscover.jsx";
+import "./App.css";
 
 //------------------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------
@@ -455,11 +455,17 @@ function App() {
   return (
     <div>
       {/* view switch buttons  */}
-      <div>
-        <button onClick={() => setActiveView("library")}>
+      <div className="switch-btn-container">
+        <button
+          onClick={() => setActiveView("library")}
+          className={`btn ${activeView === "library" ? "active" : ""}`}
+        >
           My library
         </button>
-        <button onClick={() => setActiveView("discover")}>
+        <button
+          onClick={() => setActiveView("discover")}
+          className={`btn ${activeView === "discover" ? "active" : ""}`}
+        >
           Discover books
         </button>
       </div>
@@ -519,11 +525,9 @@ function App() {
       )}
 
       {/* dicover  */}
-      {activeView === "discover" &&
-       <BookDiscover 
-       shelves={shelves}
-       onAddBook={handleAddBook}
-       />}
+      {activeView === "discover" && (
+        <BookDiscover shelves={shelves} onAddBook={handleAddBook} />
+      )}
     </div>
   );
 }

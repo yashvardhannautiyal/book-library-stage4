@@ -1,0 +1,128 @@
+#main-container {
+    width: 100%;
+   display: flex;
+   justify-content: center;
+}
+
+/* heading  */
+#heading-container p {
+    font-size: 20px;
+    color: rgb(23, 67, 23);
+}
+
+
+/* Button */
+/* button{
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+*/
+
+button:hover {
+  background: rgba(91, 141, 91, 0.819);
+  cursor: pointer;
+  color: #fff;
+} 
+
+/* create shelf container  */
+.create-container{
+    width: 30%;
+    display: flex;
+    gap: 5px;
+    padding-bottom: 15px;
+}
+
+.create-container input{
+    padding: 0px 1px 0px 5px;
+    border: 1px solid rgba(70, 136, 70, 0.819);
+    border-radius: 6px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+
+.create-container button{
+    width: 100px;
+    padding: 5px;
+    border-radius: 10px;
+    border: 1px solid rgba(70, 136, 70, 0.819);
+}
+
+
+/* rename container  */
+.rename-container{
+    display: flex;
+    gap: 5px;
+    padding-bottom: 15px;
+}
+
+.rename-container input{
+    padding: 0px 1px 0px 5px;
+    border: 1px solid rgba(70, 136, 70, 0.819);
+    border-radius: 6px;
+    font-size: 13px;
+    transition: border-color 0.3s ease;
+}
+
+.rename-container button{
+    width: 100px;
+    padding: 5px;
+    border-radius: 10px;
+    border: 1px solid rgba(70, 136, 70, 0.819);
+}
+
+
+/* delete container  */
+.delete-main-container{
+    padding-bottom: 10px;
+}
+
+.delete-main-container p{
+    font-weight: 600;
+}
+
+.delete-sub-container{
+     display: flex;
+    gap: 5px;
+}
+
+.delete-sub-container select{
+    padding: 0px 1px 0px 5px;
+    border: 1px solid rgba(70, 136, 70, 0.819);
+    border-radius: 6px;
+    font-size: 13px;
+    transition: border-color 0.3s ease;
+}
+
+.delete-sub-container button{
+    width: 100px;
+    padding: 5px;
+    border-radius: 10px;
+    border: 1px solid rgba(70, 136, 70, 0.819);
+}
+
+
+/* normal mode container  */
+.mode-container{
+    display: flex;
+    gap: 7px;
+    align-items: center;
+    padding-bottom: 10px;
+}
+
+.mode-container button{
+    padding: 5px;
+    border-radius: 10px;
+    border: 1px solid rgba(70, 136, 70, 0.819);
+}
+
+.finished{
+    background-color: rgba(70, 136, 70, 0.819);
+    color: #fff;
+    padding: 2px 8px 2px 8px;
+    border-radius: 6px;
+}

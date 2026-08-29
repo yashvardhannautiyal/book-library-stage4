@@ -80,3 +80,90 @@ test("pagination starts on page 1 with Previous disabled", async () => {
 
   expect(previousButton).toBeDisabled();
 });
+
+
+test("does not show results from an older search", async () => {
+  const user = userEvent.setup();
+
+  let firstResolve;
+  let secondResolve;
+
+  global.fetch = vi
+    .fn()
+    .mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          firstResolve = resolve;
+        }),
+    )
+    .mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          secondResolve = resolve;
+        }),
+    );
+
+  render(
+    <BookDiscover
+      shelves={[{ id: "to-read", name: "To Read" }]}
+      onAddBook={vi.fn()}
+    />,
+  );
+
+  const input = screen.getByPlaceholderText("Search for a book or author");
+
+  // First search
+  await user.type(input, "Harry");
+
+  // Wait for the debounce
+  await new Promise((resolve) => setTimeout(resolve, 350));
+
+  // Change search before the first request finishes
+  await user.clear(input);
+  await user.type(input, "Potter");
+
+  // Wait for the second debounced request
+  await new Promise((resolve) => setTimeout(resolve, 350));
+
+  // Newer search finishes first
+  secondResolve({
+    ok: true,
+    json: () =>
+      Promise.resolve({
+        docs: [
+          {
+            key: "/works/NEW",
+            title: "New Search Book",
+            author_name: ["New Author"],
+          },
+        ],
+        numFound: 1,
+      }),
+  });
+
+  await waitFor(() => {
+    expect(screen.getByText("New Search Book")).toBeInTheDocument();
+  });
+
+  // Older request finishes afterwards
+  firstResolve({
+    ok: true,
+    json: () =>
+      Promise.resolve({
+        docs: [
+          {
+            key: "/works/OLD",
+            title: "Old Search Book",
+            author_name: ["Old Author"],
+          },
+        ],
+        numFound: 1,
+      }),
+  });
+
+  await new Promise((resolve) => setTimeout(resolve, 100));
+
+  // Old result must never replace the new result
+  expect(screen.queryByText("Old Search Book")).not.toBeInTheDocument();
+  expect(screen.getByText("New Search Book")).toBeInTheDocument();
+});
